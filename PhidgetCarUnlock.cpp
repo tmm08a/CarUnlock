@@ -12,7 +12,8 @@ PhidgetCarUnlock
 #include <iostream>
 using namespace std;
 //hold array is the sequence of numbers entered by the machine
-//it is in the order so no numbers are repeated, it is the fastest way to unlock the car door (by brute force means)
+//it is in the order so no numbers are repeated, it is the fastest way to unlock the car door (by dictionary attack)
+
 char hold [] ={
   '9','9','9','9','1','1','1','1','1','3','1','1','1','1','5','1','1','1','1','7','1','1','1','1','9','1','1','1','3','3','1',
   '1','1','3','5','1','1','1','3','7','1','1','1','3','9','1','1','1','5','3','1','1','1','5','5','1','1','1','5','7','1','1',
