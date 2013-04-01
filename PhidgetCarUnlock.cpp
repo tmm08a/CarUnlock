@@ -1,3 +1,11 @@
+/*
+Tim Michaud
+
+tmm08a@acu.edu
+
+PhidgetCarUnlock
+*/
+
 #include <stdio.h>
 #include <phidget21.h>
 #include <windows.h>
