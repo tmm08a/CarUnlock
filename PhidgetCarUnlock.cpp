@@ -16,7 +16,7 @@ using namespace std;
 Explanation and number sequence here: http://everything2.com/title/Weak+security+in+our+daily+lives
 TL;DR of link:
 
-hold array is the sequence of numbers entered by the machine
+sequence array is the sequence of numbers entered by the machine
 it is in the order so no numbers are repeated, it is the fastest way to unlock the car door (by dictionary attack)
 The numbers 2/4/6/8 aren't used because they aren't needed. 
 There are two breakdowns: 1/2 3/4 5/6 7/8 9/0 And 0/1 2/3 4/5 6/7 8/9
@@ -38,7 +38,7 @@ math any further here. Right now, I am going to give you a sequence of minimal l
 car's numeric keypad, is guaranteed to unlock the doors of said car. It is exactly 3129 keypresses long. 
 
 */
-char hold [] ={
+char sequence[] ={
   '9','9','9','9','1','1','1','1','1','3','1','1','1','1','5','1','1','1','1','7','1','1','1','1','9','1','1','1','3','3','1',
   '1','1','3','5','1','1','1','3','7','1','1','1','3','9','1','1','1','5','3','1','1','1','5','5','1','1','1','5','7','1','1',
   '1','5','9','1','1','1','7','3','1','1','1','7','5','1','1','1','7','7','1','1','1','7','9','1','1','1','9','3','1','1','1',
@@ -141,9 +141,6 @@ char hold [] ={
   '7','9','7','5','9','7','9','9','5','9','9','7','7','5','9','9','7','9','5','9','9','9','7','5','9','9','9','9','7','7','7',
   '7','7','9','7','7','7','9','9','7','7','9','7','9','7','7','9','9','9','7','9','7','9','9','7','9','9','9','9','9'
 };
-int i,newstart=0,sleep=0;
-int holder=1;
-
 // Sets up an Advanced Servo object, hooks the event handlers and opens it for device connections.  
 // Once an Advanced Servo is attached it will move the motor to various positions, displaying the event details to the console.
 
@@ -276,8 +273,10 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 
 int main(int argc, char* argv[])
 {
-printf("How long to wait every 30 buttons? (Defaults to 60 seconds, enter in seconds)");
-cin >> sleep;
+int i=0,newstart=0,sleep=0;
+int holder=1;
+printf("How long to wait every 30 buttons? (Defaults to 60 seconds, enter in seconds)\n");
+scanf("%d",sleep);
 if ((int)sleep<60){
 	sleep=60;
 }
@@ -361,7 +360,7 @@ number "primer". It resets at 30 numbers pressed to keep the car from locking yo
 			else if ((i%(30*holder)==0)&&(i!=0)){
 				newstart=i-3;
 			}
-			servo_simple(hold[i], servo);
+			servo_simple(sequence[i], servo);
 			printf("curr pos is %d \n",curr_pos);
 	
 			 }
