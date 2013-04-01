@@ -1,4 +1,6 @@
-CarUnlock
+<h1>CarUnlock</h1>
 =========
 
-Code to unlock number based car door pads, brute force style. Uses the Phidget Library
+This code (Along with the servo motors and arm) will unlock a car door which uses a 0-9 number pad.
+It goes through every possible combination (without repeating). 
+
