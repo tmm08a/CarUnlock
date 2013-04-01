@@ -16,13 +16,17 @@ using namespace std;
 Explanation and number sequence here: http://everything2.com/title/Weak+security+in+our+daily+lives
 TL;DR of link:
 
-sequence array is the sequence of numbers entered by the machine
-it is in the order so no numbers are repeated, it is the fastest way to unlock the car door (by dictionary attack)
-The numbers 2/4/6/8 aren't used because they aren't needed. 
+The sequence array is the sequence of numbers entered by the machineit is in the order so no numbers are repeated,
+it is the fastest way to unlock the car door (by dictionary attack)
+
+The numbers 2/4/6/8 aren't used because they aren't needed. (Each number coupling only has one actual button to press, they are not
+unique)
+
 There are two breakdowns: 1/2 3/4 5/6 7/8 9/0 And 0/1 2/3 4/5 6/7 8/9
 
-The even numbers aren't used because both numbers push the same button, so only the odd numbers are used.
-Odds are used because it will cover both cases of keypads starting with 0 or 1, and to keep it simple
+The even numbers(including 0) are not used. Odds are because it will cover both cases of keypads starting with 0 or 1, 
+and also to keep it simple
+
 
 A little experimentation will reveal that, if the code is 11357, and you type 5113579, the door will still open!
 This means that with 7 characters we managed to try out 3 sequences - 51135, 11357, and 13579. 
