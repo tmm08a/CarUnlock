@@ -11,9 +11,28 @@ PhidgetCarUnlock
 #include <windows.h>
 #include <iostream>
 using namespace std;
-//hold array is the sequence of numbers entered by the machine
-//it is in the order so no numbers are repeated, it is the fastest way to unlock the car door (by dictionary attack)
+/*hold array is the sequence of numbers entered by the machine
+it is in the order so no numbers are repeated, it is the fastest way to unlock the car door (by dictionary attack)
+The numbers 2/4/6/8 aren't used because they aren't needed. 
+There are two breakdowns: 1/2 3/4 5/6 7/8 9/0 And 0/1 2/3 4/5 6/7 8/9
+The even numbers aren't used because both numbers push the same button, so only the odd numbers are used.
+Odds are used because it will cover both cases of keypads starting with 0 or 1, and to keep it simple
+(explanation and number sequence here: http://everything2.com/title/Weak+security+in+our+daily+lives)
+TL;DR of link:
 
+A little experimentation will reveal that, if the code is 11357, and you type 5113579, the door will still open!
+This means that with 7 characters we managed to try out 3 sequences - 51135, 11357, and 13579. 
+
+After the inital 4 numbers (which sort of primed the pump) every digit tries one new sequence. 
+Since there are 55 length 5 sequences of characters from an alphabet of size 5, we know that we'll need to try 3125 
+sequences total. With our intuition from above, we would hope that we could find a sequence of size 4 + 3125 
+(priming the pump, followed by one new sequence every keypress). It turns out that a mathematician named de Bruijn has
+already done all of the hard work for us on this one, and all of the relevant math can found under the names de Bruijn
+sequence and de Bruijn graph. But I'm not going to talk about math any further here. Right now, I am going to give you 
+a sequence of minimal length that, when you enter it into a car's numeric keypad, is guaranteed to unlock the doors of 
+said car. It is exactly 3129 keypresses long. 
+
+*/
 char hold [] ={
   '9','9','9','9','1','1','1','1','1','3','1','1','1','1','5','1','1','1','1','7','1','1','1','1','9','1','1','1','3','3','1',
   '1','1','3','5','1','1','1','3','7','1','1','1','3','9','1','1','1','5','3','1','1','1','5','5','1','1','1','5','7','1','1',
