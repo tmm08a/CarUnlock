@@ -272,7 +272,6 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 int main(int argc, char* argv[])
 {
 int i=0,newstart=0,sleep=60;
-int holder=1;
 printf("Setting Sleep to %d seconds\n",sleep);
 
 int result;
@@ -339,17 +338,17 @@ int result;
 		for (i;i<3130;i++){
 				if (newstart>0){
 					i=newstart;
-					holder++;
 					newstart=0;
 					printf("Sleeping for %d seconds\n",sleep);
 					Sleep(sleep*1000);
 					}
 /* 
-mod 30* holder(current position in array)=0, set the newstart back by 3 so it will start off retyping the new 
-number "primer". It resets at 30 numbers pressed to keep the car from locking you out,which is why sleeps are needed
 
-*/		
-			else if ((i%(30*holder)==0)&&(i!=0)){
+Every 30 numbers the car locks the person out (so one can't guess the code too quickly)
+To circumvent this, every 30 numbers we set it back by 3 positions to rebuild our "primer", and start over again
+
+*/
+			else if ((i!=0)&&(i%30==0)){
 				newstart=i-3;
 			}
 			servo_simple(sequence[i], servo);
