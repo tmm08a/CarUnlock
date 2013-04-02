@@ -150,8 +150,8 @@ char sequence[] ={
 
 int CCONV AttachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 {
-  int serialNo;
-	const char *name;
+  int serialNo=0;
+  const char *name="";
 
 	CPhidget_getDeviceName (ADVSERVO, &name);
 	CPhidget_getSerialNumber(ADVSERVO, &serialNo);
@@ -162,8 +162,8 @@ int CCONV AttachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 
 int CCONV DetachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 {
-	int serialNo;
-	const char *name;
+	int serialNo=0;
+	const char *name="";
 
 	CPhidget_getDeviceName (ADVSERVO, &name);
 	CPhidget_getSerialNumber(ADVSERVO, &serialNo);
@@ -186,8 +186,8 @@ int CCONV PositionChangeHandler(CPhidgetAdvancedServoHandle ADVSERVO, void *usrp
 //Display the properties of the attached phidget to the screen.  We will be displaying the name, serial number and version of the attached device.
 int display_properties(CPhidgetAdvancedServoHandle phid)
 {
-	int serialNo, version, numMotors;
-	const char* ptr;
+	int serialNo=0, version=0, numMotors=0;
+	const char* ptr="";
 
 	CPhidget_getDeviceType((CPhidgetHandle)phid, &ptr);
 	CPhidget_getSerialNumber((CPhidgetHandle)phid, &serialNo);
@@ -212,19 +212,13 @@ int resetSecond(CPhidgetAdvancedServoHandle servo){
 
 int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 {
-
+	int i=0;
 
 	
 	//change the motor position
 	//valid range is -23 to 232, but for most motors ~30-210
 	//we'll set it to a few random positions to move it around
 	//Step 1: Position 40.00 - also engage servo
-
-	
-	//engage all servo motors
-	for (i=0;i<2;i++){
-	CPhidgetAdvancedServo_setEngaged(servo, i, 1);
-	}
 
 	/*
 	
@@ -237,35 +231,35 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 
 
 	*/
-
+	printf("called %d at i",button);
 	switch(button){
 		case  '1':
 			CPhidgetAdvancedServo_setPosition (servo, 0, 60.00);
-			Sleep(2000);
+			Sleep(4000);
 			printf("Pushing Button 1");
 			resetSecond(servo);
 			break;
 		case  '3':
 			 CPhidgetAdvancedServo_setPosition (servo, 0, 70.00);
-			Sleep(2000);
+			Sleep(4000);
 			printf("Pushing Button 3");
 			resetSecond(servo);
 			break;
 		case  '5':
 			CPhidgetAdvancedServo_setPosition (servo, 0, 80.00);
-			Sleep(2000);
+			Sleep(4000);
 			printf("Pushing Button 5");
 			resetSecond(servo);
 			break;
 		case  '7':
 			CPhidgetAdvancedServo_setPosition (servo, 0, 90.00);
-			Sleep(2000);
+			Sleep(4000);
 			printf("Pushing Button 7");
 			resetSecond(servo);
 			break;
 		case  '9':
 			CPhidgetAdvancedServo_setPosition (servo, 0, 100.00);
-			Sleep(2000);
+			Sleep(4000);
 			printf("Pushing Button 9");
 			resetSecond(servo);
 			break;
@@ -277,19 +271,14 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 
 int main(int argc, char* argv[])
 {
-int i=0,newstart=0,sleep=0;
+int i=0,newstart=0,sleep=60;
 int holder=1;
-printf("How long to wait every 30 buttons? (Defaults to 60 seconds, enter in seconds)\n");
-scanf("%d",sleep);
-if ((int)sleep<60){
-	sleep=60;
-}
 printf("Setting Sleep to %d seconds\n",sleep);
 
 int result;
-	double curr_pos;
+	double curr_pos=0.00;
 	const char *err;
-	double minAccel, maxVel;
+	double minAccel=0.00, maxVel=0.00;
 
 
 
@@ -341,12 +330,12 @@ int result;
 	printf("Moving to default positions and engaging servo motor\n");
 
 	CPhidgetAdvancedServo_setPosition (servo, 0, 50.00);
-	for (i=1;i<3;i++){
-	CPhidgetAdvancedServo_setPosition (servo, i, 150.00);
+	for (int j=0;j<2;j++){
+	CPhidgetAdvancedServo_setPosition (servo, j, 150.00);
+	CPhidgetAdvancedServo_setEngaged(servo, j, 1);
 	}
-	Sleep(8000);
 	printf("Initializing, please wait...\n");
-	Sleep(50);
+	Sleep(4000);
 	while (i<3130){
 		for (i;i<3130;i++){
 				if (newstart>0){
