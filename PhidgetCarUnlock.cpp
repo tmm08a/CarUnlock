@@ -16,6 +16,8 @@ using namespace std;
 Explanation and number sequence here: http://everything2.com/title/Weak+security+in+our+daily+lives
 TL;DR of link:
 
+Car Code is (assumed) to be 5 numbers long (current standard in Ford/Chevy/Dodge and possibly Toyota cars)
+
 The sequence array is the sequence of numbers entered by the machineit is in the order so no numbers are repeated,
 it is the fastest way to unlock the car door (by dictionary attack)
 
