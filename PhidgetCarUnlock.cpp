@@ -152,6 +152,7 @@ char sequence[] ={
 
 int CCONV AttachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 {
+  int result=0;
   int serialNo=0;
   const char *name="";
 
@@ -159,36 +160,39 @@ int CCONV AttachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 	CPhidget_getSerialNumber(ADVSERVO, &serialNo);
 	printf("%s %10d attached!\n", name, serialNo);
 
-	return 0;
+	return result;
 }
 
 int CCONV DetachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 {
-	int serialNo=0;
-	const char *name="";
+		
+  int serialNo=0,result=0;
+  const char *name="";
 
 	CPhidget_getDeviceName (ADVSERVO, &name);
 	CPhidget_getSerialNumber(ADVSERVO, &serialNo);
 	printf("%s %10d detached!\n", name, serialNo);
 
-	return 0;
+	return result;
 }
 
 int CCONV ErrorHandler(CPhidgetHandle ADVSERVO, void *userptr, int ErrorCode, const char *Description)
 {
+  int result=0;
 	printf("Error handled. %d - %s\n", ErrorCode, Description);
-	return 0;
+	return result;
 }
 
 int CCONV PositionChangeHandler(CPhidgetAdvancedServoHandle ADVSERVO, void *usrptr, int Index, double Value)
 {
+  int result=0;
 	//printf("Motor: %d > Current Position: %f\n", Index, Value);
-	return 0;
+	return result;
 }
 //Display the properties of the attached phidget to the screen.  We will be displaying the name, serial number and version of the attached device.
 int display_properties(CPhidgetAdvancedServoHandle phid)
 {
-	int serialNo=0, version=0, numMotors=0;
+	int serialNo=0, version=0, numMotors=0,result=0;
 	const char* ptr="";
 
 	CPhidget_getDeviceType((CPhidgetHandle)phid, &ptr);
@@ -200,21 +204,22 @@ int display_properties(CPhidgetAdvancedServoHandle phid)
 	printf("%s\n", ptr);
 	printf("Serial Number: %10d\nVersion: %8d\n# Motors: %d\n", serialNo, version, numMotors);
 
-	return 0;
+	return result;
 }
 
 //Pushes the button, then resets the motor to its original position
 int resetSecond(CPhidgetAdvancedServoHandle servo){
-		CPhidgetAdvancedServo_setPosition (servo, 1, 50.00);
-		Sleep(500);
-		CPhidgetAdvancedServo_setPosition (servo, 1, 150.00);
-		Sleep(500);
-		return 0;
-	}
+  int result=0;
+	CPhidgetAdvancedServo_setPosition (servo, 1, 50.00);
+	Sleep(500);
+	CPhidgetAdvancedServo_setPosition (servo, 1, 150.00);
+	Sleep(500);
+	return result;
+}
 
 int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 {
-	int i=0;
+  int i=0,result=0,switchresult=0;
 
 	
 	//change the motor position
@@ -233,7 +238,7 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 
 
 	*/
-	printf("called %d at i",button);
+  printf("called %d at i",button);
 	switch(button){
 		case  '1':
 			CPhidgetAdvancedServo_setPosition (servo, 0, 60.00);
@@ -266,49 +271,44 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 			resetSecond(servo);
 			break;
 		default:
-			return 0;
+			return switchresult;
 	}
-	return 0;
+	return result;
 }
 
 int main(int argc, char* argv[])
 {
-int i=0,newstart=0,sleep=60;
-printf("Setting Sleep to %d seconds\n",sleep);
+  int i=0,newstart=0,sleep=60,result=0;
+  printf("Setting Sleep to %d seconds\n",sleep);
+  double curr_pos=0.00;
+  const char *err="";
+  double minAccel=0.00, maxVel=0.00;
 
-int result;
-	double curr_pos=0.00;
-	const char *err;
-	double minAccel=0.00, maxVel=0.00;
+  //Declare an advanced servo handle
+  CPhidgetAdvancedServoHandle servo = 0;
+  //create the advanced servo object
+  CPhidgetAdvancedServo_create(&servo);
 
+  //Set the handlers to be run when the device is plugged in or opened from software, unplugged or closed from software, or generates an error.
+  CPhidget_set_OnAttach_Handler((CPhidgetHandle)servo, AttachHandler, NULL);
+  CPhidget_set_OnDetach_Handler((CPhidgetHandle)servo, DetachHandler, NULL);
+  CPhidget_set_OnError_Handler((CPhidgetHandle)servo, ErrorHandler, NULL);
 
-
-
-	//Declare an advanced servo handle
-	CPhidgetAdvancedServoHandle servo = 0;
-
-	//create the advanced servo object
-	CPhidgetAdvancedServo_create(&servo);
-
-	//Set the handlers to be run when the device is plugged in or opened from software, unplugged or closed from software, or generates an error.
-	CPhidget_set_OnAttach_Handler((CPhidgetHandle)servo, AttachHandler, NULL);
-	CPhidget_set_OnDetach_Handler((CPhidgetHandle)servo, DetachHandler, NULL);
-	CPhidget_set_OnError_Handler((CPhidgetHandle)servo, ErrorHandler, NULL);
-
-	//Registers a callback that will run when the motor position is changed.
-	//Requires the handle for the Phidget, the function that will be called, and an arbitrary pointer that will be supplied to the callback function (may be NULL).
-	CPhidgetAdvancedServo_set_OnPositionChange_Handler(servo, PositionChangeHandler, NULL);
-
-	//open the device for connections
-	CPhidget_open((CPhidgetHandle)servo, -1);
+  //Registers a callback that will run when the motor position is changed.
+  //Requires the handle for the Phidget, the function that will be called, and an arbitrary pointer that will be supplied to the callback function (may be NULL).
+  CPhidgetAdvancedServo_set_OnPositionChange_Handler(servo, PositionChangeHandler, NULL);
+  
+  //open the device for connections
+  CPhidget_open((CPhidgetHandle)servo, -1);
 
 	//get the program to wait for an advanced servo device to be attached
 	printf("Waiting for Phidget to be attached....");
 	if((result = CPhidget_waitForAttachment((CPhidgetHandle)servo, 10000)))
 	{
+	  int result2=0;
 		CPhidget_getErrorDescription(result, &err);
 		printf("Problem waiting for attachment: %s\n", err);
-		return 0;
+		return result2;
 	}
 
 	//Display the properties of the attached device
