@@ -336,7 +336,6 @@ int result;
 	}
 	printf("Initializing, please wait...\n");
 	Sleep(4000);
-	while (i<3130){
 		for (i;i<3130;i++){
 				if (newstart>0){
 					i=newstart;
@@ -357,10 +356,6 @@ number "primer". It resets at 30 numbers pressed to keep the car from locking yo
 			printf("curr pos is %d \n",curr_pos);
 	
 			 }
-			system("PAUSE");
-			return(0);
-
-		}
 
 //At end, call this to disengage servo and terminate program
 	//Step 7: Disengage
