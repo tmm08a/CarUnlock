@@ -1,3 +1,13 @@
+/* ========================================================================== */
+/*                                                                            */
+/*   Filename.c                                                               */
+/*   (c) 2012 Author                                                          */
+/*                                                                            */
+/*   Description                                                              */
+/*                                                                            */
+/* ========================================================================== */
+
+
 /*
 Tim Michaud
 
@@ -83,6 +93,8 @@ works well in most cases. With better hardware this could be sped up significant
 
 Also, do not change sequence[].
 */
+#define MOTOR_ON                             1 /*Flag to turn the specified motor on*/
+#define MOTOR_OFF                            0 /*Flag to turn the specified motor off*/
 #define ACUTAL_BUTTON_PRESS                  50.00  /*number of degrees the servo motor needs to rotate to press the button in*/
 #define RESET_MOTOR_FROM_BUTTON_PRESS        150.00  /*number of degrees that the servo motor needs to rotate to release the button and reset itself*/
 #define TIME_FOR_ARM_TO_MOVE                 4  /*number of SECONDS to sleep to give arm time to move into position*/
@@ -205,7 +217,7 @@ int CCONV AttachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 
   return result;
 }
-
+//Handler to detach supplied Servo motor
 int CCONV DetachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 {
 		
@@ -218,14 +230,14 @@ int CCONV DetachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 
   return result;
 }
-
+//handles errors
 int CCONV ErrorHandler(CPhidgetHandle ADVSERVO, void *userptr, int ErrorCode, const char *Description)
 {
   int result=0;
   printf("Error handled. %d - %s\n", ErrorCode, Description);
   return result;
 }
-
+//changes and moves servo motor to supplied position
 int CCONV PositionChangeHandler(CPhidgetAdvancedServoHandle ADVSERVO, void *usrptr, int Index, double Value)
 {
   int result=0;
@@ -366,20 +378,21 @@ int main(int argc, char* argv[])
 	printf("Motor: 0 > Current Position: %f\n", curr_pos);
   }
   //Set up some initial acceleration and velocity values
-  CPhidgetAdvancedServo_getAccelerationMin(servo, 0, &minAccel);
-  CPhidgetAdvancedServo_setAcceleration(servo, 0, minAccel*2);
-  CPhidgetAdvancedServo_getVelocityMax(servo, 0, &maxVel);
-  CPhidgetAdvancedServo_setVelocityLimit(servo, 0, maxVel/2);
+  printf("Setting Veloctity and Acceleration defaults\n");
+  CPhidgetAdvancedServo_getAccelerationMin(servo, ARM_MOTORNUMBER, &minAccel);
+  CPhidgetAdvancedServo_setAcceleration(servo, ARM_MOTORNUMBER, minAccel*2);
+  CPhidgetAdvancedServo_getVelocityMax(servo, ARM_MOTORNUMBER, &maxVel);
+  CPhidgetAdvancedServo_setVelocityLimit(servo, ARM_MOTORNUMBER, maxVel/2);
   printf("Moving to default positions and engaging servo motor\n");
 
   CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FIRST_BUTTON_LOCATION_FOR_ARM);
-  CPhidgetAdvancedServo_setEngaged(servo, ARM_MOTORNUMBER, 1);
+  CPhidgetAdvancedServo_setEngaged(servo, ARM_MOTORNUMBER, MOTOR_ON);
   
   CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, RESET_MOTOR_FROM_BUTTON_PRESS);
-  CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, 1);
+  CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, MOTOR_ON);
   
   printf("Initializing, please wait...\n");
-  Sleep(4000);
+  Sleep(SLEEP_LENGTH*1000);
   for (i;i<MAX_NUMBER_OF_COMBINATIONS;i++){
 	if (newstart>0){
 	  i=newstart;
@@ -403,8 +416,8 @@ int main(int argc, char* argv[])
   printf("Disengage Servo. Press any key to Continue\n");
   getchar();
   
-  CPhidgetAdvancedServo_setEngaged(servo, ARM_MOTORNUMBER, 0);
-  CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, 0);
+  CPhidgetAdvancedServo_setEngaged(servo, ARM_MOTORNUMBER, MOTOR_OFF);
+  CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, MOTOR_OFF);
 
   printf("Press any key to end\n");
   getchar();
