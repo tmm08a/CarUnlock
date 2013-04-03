@@ -308,11 +308,11 @@ int main(int argc, char* argv[])
   const char *err="";
   double minAccel=0.00, maxVel=0.00;
 
-  mapCaseToPosition['1'] = 60.0f;
-  mapCaseToPosition['3'] = 70.0f; 
-  mapCaseToPosition['5'] = 80.0f;
-  mapCaseToPosition['7'] = 90.0f;  
-  mapCaseToPosition['9'] = 100.0f;
+  mapCaseToPosition['1'] = FIRST_BUTTON_LOCATION_FOR_ARM;
+  mapCaseToPosition['3'] = SECOND_BUTTON_LOCATION_FOR_ARM; 
+  mapCaseToPosition['5'] = THIRD_BUTTON_LOCATION_FOR_ARM;
+  mapCaseToPosition['7'] = FOURTH_BUTTON_LOCATION_FOR_ARM;  
+  mapCaseToPosition['9'] = FIFTH_BUTTON_LOCATION_FOR_ARM;
 
   //Declare an advanced servo handle
   CPhidgetAdvancedServoHandle servo = 0;
