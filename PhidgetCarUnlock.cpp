@@ -1,13 +1,3 @@
-/* ========================================================================== */
-/*                                                                            */
-/*   Filename.c                                                               */
-/*   (c) 2012 Author                                                          */
-/*                                                                            */
-/*   Description                                                              */
-/*                                                                            */
-/* ========================================================================== */
-
-
 /*
 Tim Michaud
 
@@ -22,7 +12,7 @@ PhidgetCarUnlock
 #include <iostream>
 #include <map>
 using namespace std;
-
+map<char, double> mapCaseToPosition;
 /*
 Explanation and number sequence here: http://everything2.com/title/Weak+security+in+our+daily+lives
 TL;DR of link:
@@ -93,12 +83,11 @@ works well in most cases. With better hardware this could be sped up significant
 
 Also, do not change sequence[].
 */
-#define MOTOR_ON                             1 /*Flag to turn the specified motor on*/
-#define MOTOR_OFF                            0 /*Flag to turn the specified motor off*/
 #define ACUTAL_BUTTON_PRESS                  50.00  /*number of degrees the servo motor needs to rotate to press the button in*/
 #define RESET_MOTOR_FROM_BUTTON_PRESS        150.00  /*number of degrees that the servo motor needs to rotate to release the button and reset itself*/
 #define TIME_FOR_ARM_TO_MOVE                 4  /*number of SECONDS to sleep to give arm time to move into position*/
-
+#define MOTOR_ON                             1 /*Turns servo device on*/
+#define MOTOR_OFF                            0 /*Turns servo device off*/
 char sequence[] ={
   '9','9','9','9','1','1','1','1','1','3','1','1','1','1','5','1','1','1','1','7','1','1','1','1','9','1','1','1','3','3','1',
   '1','1','3','5','1','1','1','3','7','1','1','1','3','9','1','1','1','5','3','1','1','1','5','5','1','1','1','5','7','1','1',
@@ -217,7 +206,7 @@ int CCONV AttachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 
   return result;
 }
-//Handler to detach supplied Servo motor
+
 int CCONV DetachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 {
 		
@@ -230,14 +219,14 @@ int CCONV DetachHandler(CPhidgetHandle ADVSERVO, void *userptr)
 
   return result;
 }
-//handles errors
+
 int CCONV ErrorHandler(CPhidgetHandle ADVSERVO, void *userptr, int ErrorCode, const char *Description)
 {
   int result=0;
   printf("Error handled. %d - %s\n", ErrorCode, Description);
   return result;
 }
-//changes and moves servo motor to supplied position
+
 int CCONV PositionChangeHandler(CPhidgetAdvancedServoHandle ADVSERVO, void *usrptr, int Index, double Value)
 {
   int result=0;
@@ -263,7 +252,7 @@ int display_properties(CPhidgetAdvancedServoHandle phid)
 }
 
 //Pushes the button, then resets the motor to its original position
-int resetSecond(CPhidgetAdvancedServoHandle servo){
+int PushAndResetSecond(CPhidgetAdvancedServoHandle servo){
   int result=0;
   CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, ACUTAL_BUTTON_PRESS);
   Sleep(500);
@@ -274,7 +263,7 @@ int resetSecond(CPhidgetAdvancedServoHandle servo){
 
 int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 {
-  int i=0,result=0,switchresult=0;
+  int i=0,result=0;
 
 	
 	//change the motor position
@@ -289,46 +278,26 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 	the third set position resets the arm that pushed the button.
 
 	The sleep numbers are very conservative to not run down the hardware too quickly. 
-	It takes a little over 7 hours to run through all the numbers completely. 
+	It takes a little over 2 hours to run through all the numbers completely. 
 
 
 	*/
-  printf("called %d at i",button);
-  switch(button){
-	case  '1':
-		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FIRST_BUTTON_LOCATION_FOR_ARM);
-		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
-		printf("Pushing Button 1");
-		resetSecond(servo);
-		break;
-	case  '3':
-	 	CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, SECOND_BUTTON_LOCATION_FOR_ARM);
-		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
-		printf("Pushing Button 3");
-		resetSecond(servo);
-		break;
-	case  '5':
-		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, THIRD_BUTTON_LOCATION_FOR_ARM);
-		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
-		printf("Pushing Button 5");
-		resetSecond(servo);
-		break;
-	case  '7':
-		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FOURTH_BUTTON_LOCATION_FOR_ARM);
-		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
-		printf("Pushing Button 7");
-		resetSecond(servo);
-		break;
-	case  '9':
-		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FIFTH_BUTTON_LOCATION_FOR_ARM);
-		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
-		printf("Pushing Button 9");
-		resetSecond(servo);
-		break;
-	default:
-		return switchresult;
-	}
-	return result;
+
+  // for error handling, making sure we know about this button
+  map<char, double>::iterator it = mapCaseToPosition.find( button );
+  // note the variable on the right of the expression – not the intuitive way to think about it, but avoids accidental assignment
+  if( mapCaseToPosition.end() != it ){
+    // catch return value here?
+    CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, it->second);
+    Sleep(TIME_FOR_ARM_TO_MOVE*1000);
+	printf("Pushing Button %c", button);
+    // catch return here, too?
+    PushAndResetSecond(servo);
+  }
+  else{
+    printf( "Invalid input: %c", button );
+  }
+  return result;
 }
 
 int main(int argc, char* argv[])
@@ -338,6 +307,12 @@ int main(int argc, char* argv[])
   double curr_pos=0.00;
   const char *err="";
   double minAccel=0.00, maxVel=0.00;
+
+  mapCaseToPosition['1'] = 60.0f;
+  mapCaseToPosition['3'] = 70.0f; 
+  mapCaseToPosition['5'] = 80.0f;
+  mapCaseToPosition['7'] = 90.0f;  
+  mapCaseToPosition['9'] = 100.0f;
 
   //Declare an advanced servo handle
   CPhidgetAdvancedServoHandle servo = 0;
@@ -374,11 +349,10 @@ int main(int argc, char* argv[])
   //This example assumes servo motor is attached to index 0
 	
   //display current motor position
-  if(CPhidgetAdvancedServo_getPosition(servo, 0, &curr_pos) == EPHIDGET_OK){
+  if(CPhidgetAdvancedServo_getPosition(servo, ARM_MOTORNUMBER, &curr_pos) == EPHIDGET_OK){
 	printf("Motor: 0 > Current Position: %f\n", curr_pos);
   }
   //Set up some initial acceleration and velocity values
-  printf("Setting Veloctity and Acceleration defaults\n");
   CPhidgetAdvancedServo_getAccelerationMin(servo, ARM_MOTORNUMBER, &minAccel);
   CPhidgetAdvancedServo_setAcceleration(servo, ARM_MOTORNUMBER, minAccel*2);
   CPhidgetAdvancedServo_getVelocityMax(servo, ARM_MOTORNUMBER, &maxVel);
@@ -392,7 +366,7 @@ int main(int argc, char* argv[])
   CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, MOTOR_ON);
   
   printf("Initializing, please wait...\n");
-  Sleep(SLEEP_LENGTH*1000);
+  Sleep(4000);
   for (i;i<MAX_NUMBER_OF_COMBINATIONS;i++){
 	if (newstart>0){
 	  i=newstart;
