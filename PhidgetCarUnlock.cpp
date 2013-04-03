@@ -10,6 +10,7 @@ PhidgetCarUnlock
 #include <phidget21.h>
 #include <windows.h>
 #include <iostream>
+#include <map>
 using namespace std;
 
 /*
@@ -44,6 +45,48 @@ math any further here. Right now, I am going to give you a sequence of minimal l
 car's numeric keypad, is guaranteed to unlock the doors of said car. It is exactly 3129 keypresses long. 
 
 */
+
+
+#define SLEEP_LENGTH                         60  /*number of SECONDS to sleep to circumvent the auto-lockout on the car*/
+#define MAX_NUMBER_OF_INPUTS_BEFORE_RESET    30  /*number of numbers to enter before sleeping for the SLEEP_LENGTH*/
+#define MAX_NUMBER_OF_COMBINATIONS           3130 /*max number of possible combinations for a door to be tried*/
+
+/*
+Modify these to change the location/placement on your control board. If you plug the arm into the top one and the servo
+motor right below it, these defaults will work just fine.
+*/
+
+#define ARM_MOTORNUMBER                      0  /*position of the arm on the servo control board*/
+#define SERVO_MOTORNUMBER                    1  /*position of the servo motor on the servo control board*/
+/*
+Modify these to change so the arm will line up with the location of the buttons on your car
+FROM 0-180.00
+*/
+#define FIRST_BUTTON_LOCATION_FOR_ARM        60.00  /*location (in degrees) of the 0/1 or 1/2 button*/
+#define SECOND_BUTTON_LOCATION_FOR_ARM       70.00  /*location (in degrees) of the 2/3 or 3/4 button*/
+#define THIRD_BUTTON_LOCATION_FOR_ARM        80.00  /*location (in degrees) of the 4/5 or 5/6 button*/
+#define FOURTH_BUTTON_LOCATION_FOR_ARM       90.00  /*location (in degrees) of the 6/7 or 7/8 button*/
+#define FIFTH_BUTTON_LOCATION_FOR_ARM        100.00  /*location (in degrees) of the 8/9 or 9/0 button*/
+
+/*
+Modify this if you want the arm to go back more than 3 (to retry a number, or if your car code is not 5 numbers long)
+*/
+
+#define PRIMER_RESET                         3  /*number of positions in the array needing to go back after a reset due to MAX_NUMBER_OF_INPUTS_BEFORE_RESET*/
+
+
+/*
+WARNING!!!!!!!!!!!!!!!
+DO NOT CHANGE ACUTAL_BUTTON_PRESS and RESET_ARM_FROM_BUTTON_PRESS, WILL BREAK THE SERVO MOTOR from over and under extending
+TIME_FOR_ARM_TO_MOVE is to give the arm sufficient time to move into position to hit the correct button. 4 seconds is the default,
+works well in most cases. With better hardware this could be sped up significantly
+
+Also, do not change sequence[].
+*/
+#define ACUTAL_BUTTON_PRESS                  50.00  /*number of degrees the servo motor needs to rotate to press the button in*/
+#define RESET_MOTOR_FROM_BUTTON_PRESS        150.00  /*number of degrees that the servo motor needs to rotate to release the button and reset itself*/
+#define TIME_FOR_ARM_TO_MOVE                 4000  /*number of SECONDS to sleep to give arm time to move into position*/
+
 char sequence[] ={
   '9','9','9','9','1','1','1','1','1','3','1','1','1','1','5','1','1','1','1','7','1','1','1','1','9','1','1','1','3','3','1',
   '1','1','3','5','1','1','1','3','7','1','1','1','3','9','1','1','1','5','3','1','1','1','5','5','1','1','1','5','7','1','1',
@@ -210,9 +253,9 @@ int display_properties(CPhidgetAdvancedServoHandle phid)
 //Pushes the button, then resets the motor to its original position
 int resetSecond(CPhidgetAdvancedServoHandle servo){
   int result=0;
-  CPhidgetAdvancedServo_setPosition (servo, 1, 50.00);
+  CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, ACUTAL_BUTTON_PRESS);
   Sleep(500);
-  CPhidgetAdvancedServo_setPosition (servo, 1, 150.00);
+  CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, RESET_MOTOR_FROM_BUTTON_PRESS);
   Sleep(500);
   return result;
 }
@@ -241,32 +284,32 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
   printf("called %d at i",button);
   switch(button){
 	case  '1':
-		CPhidgetAdvancedServo_setPosition (servo, 0, 60.00);
-		Sleep(4000);
+		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FIRST_BUTTON_LOCATION_FOR_ARM);
+		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
 		printf("Pushing Button 1");
 		resetSecond(servo);
 		break;
 	case  '3':
-	 	CPhidgetAdvancedServo_setPosition (servo, 0, 70.00);
-		Sleep(4000);
+	 	CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, SECOND_BUTTON_LOCATION_FOR_ARM);
+		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
 		printf("Pushing Button 3");
 		resetSecond(servo);
 		break;
 	case  '5':
-		CPhidgetAdvancedServo_setPosition (servo, 0, 80.00);
-		Sleep(4000);
+		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, THIRD_BUTTON_LOCATION_FOR_ARM);
+		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
 		printf("Pushing Button 5");
 		resetSecond(servo);
 		break;
 	case  '7':
-		CPhidgetAdvancedServo_setPosition (servo, 0, 90.00);
-		Sleep(4000);
+		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FOURTH_BUTTON_LOCATION_FOR_ARM);
+		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
 		printf("Pushing Button 7");
 		resetSecond(servo);
 		break;
 	case  '9':
-		CPhidgetAdvancedServo_setPosition (servo, 0, 100.00);
-		Sleep(4000);
+		CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FIFTH_BUTTON_LOCATION_FOR_ARM);
+		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
 		printf("Pushing Button 9");
 		resetSecond(servo);
 		break;
@@ -278,8 +321,8 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 
 int main(int argc, char* argv[])
 {
-  int i=0,newstart=0,sleep=60,result=0;
-  printf("Setting Sleep to %d seconds\n",sleep);
+  int i=0,newstart=0,result=0;
+  printf("Setting Sleep to %d seconds\n",SLEEP_LENGTH);
   double curr_pos=0.00;
   const char *err="";
   double minAccel=0.00, maxVel=0.00;
@@ -329,26 +372,27 @@ int main(int argc, char* argv[])
   CPhidgetAdvancedServo_setVelocityLimit(servo, 0, maxVel/2);
   printf("Moving to default positions and engaging servo motor\n");
 
-  CPhidgetAdvancedServo_setPosition (servo, 0, 50.00);
-  for (int j=0;j<2;j++){
-	CPhidgetAdvancedServo_setPosition (servo, j, 150.00);
-	CPhidgetAdvancedServo_setEngaged(servo, j, 1);
-  }
+  CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, FIRST_BUTTON_LOCATION_FOR_ARM);
+  CPhidgetAdvancedServo_setEngaged(servo, ARM_MOTORNUMBER, 1);
+  
+  CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, RESET_MOTOR_FROM_BUTTON_PRESS);
+  CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, 1);
+  
   printf("Initializing, please wait...\n");
   Sleep(4000);
-  for (i;i<3130;i++){
+  for (i;i<MAX_NUMBER_OF_COMBINATIONS;i++){
 	if (newstart>0){
 	  i=newstart;
 	  newstart=0;
-	  printf("Sleeping for %d seconds\n",sleep);
-	  Sleep(sleep*1000);
+	  printf("Sleeping for %d seconds\n",SLEEP_LENGTH);
+	  Sleep(SLEEP_LENGTH*1000);
 	}
 
 //Every 30 numbers the car locks the person out (so one can't guess the code too quickly)
 //To circumvent this, every 30 numbers we set it back by 3 positions to rebuild our "primer", and start over again
 
-	else if ((i!=0)&&(i%30==0)){
-	  newstart=i-3;
+	else if ((i!=0)&&(i%MAX_NUMBER_OF_INPUTS_BEFORE_RESET==0)){
+	  newstart=i-PRIMER_RESET;
 	}
 	  servo_simple(sequence[i], servo);
 	  printf("curr pos is %d \n",curr_pos);
@@ -359,7 +403,8 @@ int main(int argc, char* argv[])
   printf("Disengage Servo. Press any key to Continue\n");
   getchar();
   
-  CPhidgetAdvancedServo_setEngaged(servo, 0, 0);
+  CPhidgetAdvancedServo_setEngaged(servo, ARM_MOTORNUMBER, 0);
+  CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, 0);
 
   printf("Press any key to end\n");
   getchar();
