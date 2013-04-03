@@ -85,7 +85,7 @@ Also, do not change sequence[].
 */
 #define ACUTAL_BUTTON_PRESS                  50.00  /*number of degrees the servo motor needs to rotate to press the button in*/
 #define RESET_MOTOR_FROM_BUTTON_PRESS        150.00  /*number of degrees that the servo motor needs to rotate to release the button and reset itself*/
-#define TIME_FOR_ARM_TO_MOVE                 4000  /*number of SECONDS to sleep to give arm time to move into position*/
+#define TIME_FOR_ARM_TO_MOVE                 4  /*number of SECONDS to sleep to give arm time to move into position*/
 
 char sequence[] ={
   '9','9','9','9','1','1','1','1','1','3','1','1','1','1','5','1','1','1','1','7','1','1','1','1','9','1','1','1','3','3','1',
