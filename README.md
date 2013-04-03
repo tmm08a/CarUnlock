@@ -18,3 +18,5 @@ Arm: http://www.phidgets.com/products.php?category=22&product_id=3541_0
 GPL-V2 license
 
 Educational purposes only.
+
+For a better understanding, read the code comments. Much better explanation there of how this all works!
