@@ -290,7 +290,7 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
     // catch return value here?
     CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, it->second);
     Sleep(TIME_FOR_ARM_TO_MOVE*1000);
-	printf("Pushing Button %c", button);
+    printf("Pushing Button %c", button);
     // catch return here, too?
     PushAndResetSecond(servo);
   }
