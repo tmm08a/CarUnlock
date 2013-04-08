@@ -1,4 +1,4 @@
-/*
+            /*
 Tim Michaud
 
 tmm08a@acu.edu
@@ -70,6 +70,8 @@ FROM 0-180.00
 
 /*
 Modify this if you want the arm to go back more than 3 (to retry a number, or if your car code is not 5 numbers long)
+
+If your car code is 4 numbers - set this to 2 
 */
 
 #define PRIMER_RESET                         3  /*number of positions in the array needing to go back after a reset due to MAX_NUMBER_OF_INPUTS_BEFORE_RESET*/
@@ -83,6 +85,7 @@ works well in most cases. With better hardware this could be sped up significant
 
 Also, do not change sequence[].
 */
+#define DEFAULT_WAIT                         10000 /*number of milliseconds to wait for attachments to the Phidget motor*/
 #define ACUTAL_BUTTON_PRESS                  50.00  /*number of degrees the servo motor needs to rotate to press the button in*/
 #define RESET_MOTOR_FROM_BUTTON_PRESS        150.00  /*number of degrees that the servo motor needs to rotate to release the button and reset itself*/
 #define TIME_FOR_ARM_TO_MOVE                 4  /*number of SECONDS to sleep to give arm time to move into position*/
@@ -333,11 +336,12 @@ int main(int argc, char* argv[])
 
   //get the program to wait for an advanced servo device to be attached
   printf("Waiting for Phidget to be attached....");
-  if((result = CPhidget_waitForAttachment((CPhidgetHandle)servo, 10000))){
- 	int result2=0;
-    	CPhidget_getErrorDescription(result, &err);
-    	printf("Problem waiting for attachment: %s\n", err);
-    	return result2;
+  result = CPhidget_waitForAttachment((CPhidgetHandle)servo, DEFAULT_WAIT);
+  if( EPHIDGET_OK != result ){
+ 	  int result2=0;
+    CPhidget_getErrorDescription(result, &err);
+   	printf("Problem waiting for attachment: %s\n", err);
+   	return result2;
   }
 
   //Display the properties of the attached device
