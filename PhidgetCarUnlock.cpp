@@ -354,7 +354,7 @@ int main(int argc, char* argv[])
 	
   //display current motor position
   if(CPhidgetAdvancedServo_getPosition(servo, ARM_MOTORNUMBER, &curr_pos) == EPHIDGET_OK){
-	printf("Motor: 0 > Current Position: %f\n", curr_pos);
+	  printf("Motor: %d > Current Position: %f\n",ARM_MOTORNUMBER, curr_pos);
   }
   //Set up some initial acceleration and velocity values
   CPhidgetAdvancedServo_getAccelerationMin(servo, ARM_MOTORNUMBER, &minAccel);
@@ -368,7 +368,7 @@ int main(int argc, char* argv[])
   
   CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, RESET_MOTOR_FROM_BUTTON_PRESS);
   CPhidgetAdvancedServo_setEngaged(servo, SERVO_MOTORNUMBER, MOTOR_ON);
-  
+  //pause in case arm is severely out of position
   printf("Initializing, please wait...\n");
   Sleep(4000);
   for (i;i<MAX_NUMBER_OF_COMBINATIONS;i++){
