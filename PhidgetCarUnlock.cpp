@@ -257,10 +257,16 @@ int display_properties(CPhidgetAdvancedServoHandle phid)
 //Pushes the button, then resets the motor to its original position
 int PushAndResetSecond(CPhidgetAdvancedServoHandle servo){
   int result=0;
-  CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, ACUTAL_BUTTON_PRESS);
-  Sleep(500);
-  CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, RESET_MOTOR_FROM_BUTTON_PRESS);
-  Sleep(500);
+  if (CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, ACUTAL_BUTTON_PRESS)==EPHIDGET_OK){
+		Sleep(500);
+		if (CPhidgetAdvancedServo_setPosition (servo, SERVO_MOTORNUMBER, RESET_MOTOR_FROM_BUTTON_PRESS)==EPHIDGET_OK){
+		Sleep(500);
+		}else{
+			printf("Error in resetting the servo motor arm");
+		}
+  }else{
+	  printf("Error pressing the button with the servo motor");
+		}
   return result;
 }
 
@@ -286,16 +292,17 @@ int servo_simple(char button,CPhidgetAdvancedServoHandle servo)
 
 	*/
 
-  // for error handling, making sure we know about this button
   map<char, double>::iterator it = mapCaseToPosition.find( button );
-  // note the variable on the right of the expression – not the intuitive way to think about it, but avoids accidental assignment
   if( mapCaseToPosition.end() != it ){
     // catch return value here?
-    CPhidgetAdvancedServo_setPosition (servo, ARM_MOTORNUMBER, it->second);
-    Sleep(TIME_FOR_ARM_TO_MOVE*1000);
-    printf("Pushing Button %c", button);
-    // catch return here, too?
-    PushAndResetSecond(servo);
+	  if (CPhidgetAdvancedServo_setPosition(servo, ARM_MOTORNUMBER, it->second)==EPHIDGET_OK){
+		Sleep(TIME_FOR_ARM_TO_MOVE*1000);
+		printf("Pushing Button %c", button);
+		// catch return here, too?
+		PushAndResetSecond(servo);
+	  }else{
+		  printf("Could not find Phidget Motor on button press %c",button);
+	  }
   }
   else{
     printf( "Invalid input: %c", button );
