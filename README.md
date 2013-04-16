@@ -5,8 +5,8 @@ This code (Along with the servo motors and arm) will unlock a car door which use
 It goes through every possible combination without repeating. There are 3130 numbers to be typed in in the correct order.
 More in code comments
 
-There was an attempt to detect when the door unlocked so it could save the number, but I could not get the sensor 
-to detect when it unlocked, as you cannot always see the lock. If anyone has any ideas I'd appreciate it :)
+There was an attempt to detect when the door unlocked so it could save the number, but none of Phidgets devices are
+sophisticated enough to work (yet!)
 
 2 SpringRC Standard Servo - High Torque : http://www.phidgets.com/products.php?category=22&product_id=3208_0
 
